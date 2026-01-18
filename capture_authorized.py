@@ -1,7 +1,7 @@
 # capture_authorized.py
 import cv2
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(2)
 ok, frame = cap.read()
 cap.release()
 
