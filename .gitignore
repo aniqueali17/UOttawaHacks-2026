@@ -27,7 +27,6 @@ captures/
 # system files
 
 webcam_risk_loop.py
-capture_authorized.py
 guard_inventory.py
 yolov8n.pt
 authorized.jpg

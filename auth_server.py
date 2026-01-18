@@ -64,7 +64,13 @@ def verify_face(client) -> bool:
     if not os.path.exists("authorized.jpg"):
         raise RuntimeError("authorized.jpg not found. Run capture_authorized.py first.")
 
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(2)
+    # Force the frame width and height to reset the driver
+    #cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    #cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+    # Force a standard 4-character code (MJPG or YUYV)
+    #cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+    
     ok, frame = cap.read()
     cap.release()
     if not ok:
