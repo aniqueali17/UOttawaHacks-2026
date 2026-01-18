@@ -1,6 +1,9 @@
 import os
 import sys
 import requests
+from dotenv import load_dotenv # to read the api
+
+load_dotenv()
 
 if len(sys.argv) < 2:
     print("Usage: python yellowcake_test.py <job_site_url>")
@@ -15,8 +18,11 @@ if not YELLOWCAKE_API_KEY:
 payload = {
     "url": job_site_url,
     "prompt": (
-        "Extract all job listings and return a JSON array with fields: "
-        "title, company, location, posting_date, apply_url."
+        "Extract all OPEN job postings from this page. "
+        "Return ONLY a JSON array. Each item must include: "
+        "title, location, posting_date, apply_url. "
+        "Prefer the direct job page link for apply_url."
+
     )
 }
 

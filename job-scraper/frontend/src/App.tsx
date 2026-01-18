@@ -8,23 +8,54 @@ export default function App() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
-  const DEMO_URLS = [
-  "https://company.com/careers",
-  "https://boards.greenhouse.io/company",
-  "https://jobs.lever.co/company",];
 
-  async function onFetch() {
-    setError("");
-    setLoading(true);
-    try {
-      const data = await extractJobs(url);
-      setJobs(data);
-    } catch (e: any) {
-      setError(e?.message ?? "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
+  //phase 2 UI state
+  const [search, setSearch] = useState("");
+  const [loc, setLoc] = useState("");
+
+  const DEMO_URLS = [
+    "https://boards.greenhouse.io/airbnb",
+    "https://boards.greenhouse.io/databricks",
+    "https://jobs.lever.co/notion",
+  ];
+
+  // In App.tsx - around line 25
+
+async function onFetch() {
+  setError("");
+  setLoading(true);
+  try {
+    const jobs = await extractJobs(url);
+    setJobs(jobs);
+
+    // setSearch("");  // ⚠️ Remove this line
+    // setLoc("");     // ⚠️ Remove this line
+  } catch (e: any) {
+    setError(e?.message ?? "Something went wrong");
+  } finally {
+    setLoading(false);
   }
+}
+  const getLocation = (j: any) =>
+  j.location ?? j.job_location ?? j.locations ?? j.city ?? j.region ?? "";
+
+  const locations = Array.from(
+    new Set(jobs.map((j) => getLocation(j as any)).filter(Boolean))
+  ).sort();
+
+  const filtered = jobs.filter((j) => {
+    const title = String((j as any).title ?? (j as any).job_title ?? "").toLowerCase();
+    const company = String((j as any).company ?? "").toLowerCase();
+    return `${title} ${company}`.includes(search.toLowerCase());
+  });
+
+const filteredByLoc = filtered.filter((j) => !loc || getLocation(j as any) === loc);
+
+  const sorted = [...filteredByLoc].sort((a, b) => {
+    const da = String((a as any).posting_date ?? (a as any).posted_date ?? "");
+    const db = String((b as any).posting_date ?? (b as any).posted_date ?? "");
+    return db.localeCompare(da); // newest first for ISO strings
+  });
 
   return (
     <div style={{ maxWidth: 900, margin: "40px auto", padding: 16, fontFamily: "system-ui" }}>
@@ -49,30 +80,44 @@ export default function App() {
         </button>
       </div>
 
-      {error && <div style={{ marginTop: 12, color: "crimson" }}>{error}</div>}
+      {/* Phase 2 controls */}
+      <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search title/company..."
+          style={{ flex: 1, padding: 12, borderRadius: 10, border: "1px solid #ccc" }}
+        />
 
+        <select
+          value={loc}
+          onChange={(e) => setLoc(e.target.value)}
+          style={{ width: 240, padding: 12, borderRadius: 10, border: "1px solid #ccc" }}
+        >
+          <option value="">All locations</option>
+          {locations.map((l) => (
+            <option key={l} value={l}>
+              {l}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {error && <div style={{ marginTop: 12, color: "crimson" }}>{error}</div>}
+        
+      <div style={{ marginTop: 10, opacity: 0.7, fontSize: 14 }}>
+        Fetched: {jobs.length} | Showing: {sorted.length}
+      </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12, marginTop: 18 }}>
-        {jobs.map((j, i) => (
-          <JobCard key={j.apply_url ?? `${j.title}-${i}`} job={j} />
+        {sorted.map((j, i) => (
+          <JobCard key={(j as any).apply_url ?? `${(j as any).title}-${i}`} job={j} />
         ))}
       </div>
     </div>
   );
 }
-//helpers
+
+// helpers(unused for now)
 function copyJSON(jobs: any) {
   navigator.clipboard.writeText(JSON.stringify({ jobs }, null, 2));
-}
-
-function exportCSV(jobs: any[]) {
-  const headers = ["title","location","posted_date","apply_url","team","employment_type"];
-  const rows = jobs.map(j => headers.map(h => JSON.stringify(j?.[h] ?? "")).join(","));
-  const csv = [headers.join(","), ...rows].join("\n");
-
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "jobs.csv";
-  link.click();
-  URL.revokeObjectURL(link.href);
 }
