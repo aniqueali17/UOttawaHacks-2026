@@ -1,0 +1,39 @@
+# secrets
+.env
+.env.*
+
+# virtual envs
+.venv/
+venv/
+env/
+
+# python cache
+__pycache__/
+*.pyc
+
+# outputs / captured data
+captures/
+*.jpg
+*.jpeg
+*.png
+
+# large model weights
+*.pt
+
+# editor folders
+.vscode/
+.idea/
+
+# system files
+
+webcam_risk_loop.py
+capture_authorized.py
+guard_inventory.py
+yolov8n.pt
+authorized.jpg
+
+# side
+
+.gitignore.local
+
+
