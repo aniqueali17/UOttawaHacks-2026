@@ -16,7 +16,7 @@ def request_login():
     global is_authenticated
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(('LAPTOP_IP_ADDRESS', 5000))
+        s.connect(('10.56.246.143', 5000))
         resp = s.recv(1024).decode()
         is_authenticated = (resp == "AUTH_SUCCESS")
         s.close()

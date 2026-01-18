@@ -1,6 +1,16 @@
 # auth_server.py
 import os, json, time, socket, re
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
+
+import os, json, time, socket
+# Replace the dotenv lines with this simple manual loader:
+if os.path.exists(".env"):
+    with open(".env") as f:
+        for line in f:
+            if "=" in line:
+                key, value = line.strip().split("=", 1)
+                os.environ[key] = value
+
 from pathlib import Path
 
 load_dotenv(Path(__file__).with_name(".env"))
